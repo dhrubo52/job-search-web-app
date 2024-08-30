@@ -78,8 +78,12 @@ WSGI_APPLICATION = 'jobsearch.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': str('django.db.backends.postgresql'),
+        'NAME': str(os.getenv('DATABASE_NAME')),
+        'HOST': str(os.getenv('DATABASE_HOST')),
+        'USER': str(os.getenv('DATABASE_USER')),
+        'PASSWORD': str(os.getenv('DATABASE_PASSWORD')),
+        'PORT': str(os.getenv('DATABASE_PORT')),
     }
 }
 
