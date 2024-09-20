@@ -126,11 +126,11 @@ SIMPLE_JWT = {
     "BLACKLIST_AFTER_ROTATION": False,
     "UPDATE_LAST_LOGIN": False,
 
-    "ALGORITHM": "HS256",
-    "SIGNING_KEY": str(os.getenv('DJANGO_SECRET_KEY')),
-    "VERIFYING_KEY": "",
+    "ALGORITHM": "RS256",
+    "SIGNING_KEY": os.getenv('PRIVATE_KEY'),
+    "VERIFYING_KEY": os.getenv('PUBLIC_KEY'),
 }
-
+print(SIMPLE_JWT['VERIFYING_KEY'])
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
