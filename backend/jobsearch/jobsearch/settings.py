@@ -112,6 +112,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = ['authentication.authentication_backend.EmailBackend']
+
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -130,7 +132,6 @@ SIMPLE_JWT = {
     "SIGNING_KEY": os.getenv('PRIVATE_KEY'),
     "VERIFYING_KEY": os.getenv('PUBLIC_KEY'),
 }
-print(SIMPLE_JWT['VERIFYING_KEY'])
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
