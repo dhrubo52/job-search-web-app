@@ -2,6 +2,7 @@ import re
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -27,39 +28,53 @@ class Register(APIView):
         last_name = request.data.get('last_name', '')
         profile_type = request.data.get('profile_type', '')
 
+        errors = {'email': [], 'password': [], 'others': []}
+
         if User.objects.filter(email=email).exists():
-            return Response({'message': 'A user with this email address already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+            errors['email'].append('A user with this email already exists.')
+
+        if password1=='' or password2=='':
+            errors['password'].append('Password field cannot be empty.')
 
         if password1 != password2:
-            return Response({'message': 'Both passwords have to be same.'}, status=status.HTTP_400_BAD_REQUEST)
+            errors['password'].append('Password Mismatch.')
 
         user_data = {
+            'username': email,
             'email': email,
-            'password': password1,
+            'password': make_password(password1),
             'first_name': first_name,
             'last_name': last_name
         }
         user_form = UserRegistrationForm(user_data)
 
+        if user_form.is_valid():
+            print('form is valid')
+        else:
+            for error_tuple in user_form.errors.items():
+                for error in error_tuple[1]:
+                    if error_tuple[0]=='email':
+                        errors['email'].append(error)
+                    elif error_tuple[0]=='password':
+                        errors['password'].append(error)
+        
         try:
-            if user_form.is_valid():
-                print('form is valid')
-            else:
-                print(dir(user_form.errors))
-                for i in user_form.errors.items():
-                    print(i[1][0])
+            validate_password(password1)
+        except ValidationError as e:
+            for error in e:
+                errors['password'].append(error)
+        
+        if len(errors['email'])>0 or len(errors['password'])>0:
+            return Response({'error': errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Create the User object from form validated data and save them to the database
+            user = user_form.save()                                             
+            UserProfile.objects.create(user=user, profile_type=profile_type)
         except Exception as e:
-            print(e)
-            
+            errors['others'].append('User Account could not be created')
 
-        # try:
-        #     validate_password(password1)
-        # except Exception as e:
-        #     print(e)
+        if len(errors['email'])>0 or len(errors['password'])>0 or len(errors['others'])>0:
+            return Response({'error': errors}, status=status.HTTP_400_BAD_REQUEST)
 
-        # print(make_password(password1))
-
-        # user = User.obejects.create(email=email, password=password, first_name=first_name, last_name=last_name)
-        # UserProfile.objects.create(user=user, profile_type=profile_type)
-
-        return Response({'message': 'Registration Successful!'}, status=status.HTTP_200_OK)
+        return Response({'message': 'Registration Successful!'}, status=status.HTTP_201_CREATED)
