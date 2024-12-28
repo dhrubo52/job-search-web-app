@@ -1,11 +1,14 @@
-import { useState } from 'react'
+import { BrowserRouter, Routes, Route } from 'react-router';
+
+import LoginRegister from './views/LoginRegister'
 import './App.css'
 
 function App() {
-    const [count, setCount] = useState(0)
-
     return (
         <>
+            <Routes>
+                <Route path='/' element={<LoginRegister />} />
+            </Routes>
         </>
     )
 }
