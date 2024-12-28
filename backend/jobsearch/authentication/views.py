@@ -39,6 +39,9 @@ class Register(APIView):
         if password1 != password2:
             errors['password'].append('Password Mismatch.')
 
+        if len(errors['email'])>0 or len(errors['password'])>0:
+            return Response({'error': errors}, status=status.HTTP_400_BAD_REQUEST)
+
         user_data = {
             'username': email,
             'email': email,
@@ -57,6 +60,9 @@ class Register(APIView):
                         errors['email'].append(error)
                     elif error_tuple[0]=='password':
                         errors['password'].append(error)
+
+            if len(errors['email'])>0 or len(errors['password'])>0:
+                return Response({'error': errors}, status=status.HTTP_400_BAD_REQUEST)
         
         try:
             validate_password(password1)
@@ -74,7 +80,7 @@ class Register(APIView):
         except Exception as e:
             errors['others'].append('User Account could not be created')
 
-        if len(errors['email'])>0 or len(errors['password'])>0 or len(errors['others'])>0:
+        if len(errors['others'])>0:
             return Response({'error': errors}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({'message': 'Registration Successful!'}, status=status.HTTP_201_CREATED)

@@ -112,7 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTHENTICATION_BACKENDS = ['authentication.authentication_backend.EmailBackend']
+# AUTHENTICATION_BACKENDS = ['authentication.authentication_backend.EmailBackend']
 
 
 REST_FRAMEWORK = {
